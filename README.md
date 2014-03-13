@@ -14,7 +14,7 @@ Installation
 ------------
  - Get Python and Pip! [Mac](http://docs.python-guide.org/en/latest/starting/install/osx/), [Linux](http://docs.python-guide.org/en/latest/starting/install/linux/), [Windows](http://docs.python-guide.org/en/latest/starting/install/win/)
  - Get KPI with ```pip install kpicmd```
- - Get an account with KPI ```kpicmd.py login --new_user```
+ - Get an account with KPI ```kpicmd.py useradd [username]```
  - Check your email and update your password ```kpicmd.py passwd [username]```
 
 <br>
