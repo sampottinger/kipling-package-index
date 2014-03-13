@@ -54,15 +54,15 @@ Usage: ```"authors": [usernames authorized to modify this entry]```
 Example: ```"authors": ["samnsparky", "chrisJohn404"]```  
 Required: ```Yes```
 
-**description**  
-Usage: ```"description": "Short markdown description of your module"```  
-Example: ```"description": "GUI for [analog inputs](labjack.com/support/faq/what-is-analog-input)."```  
-Required: ```No, but strongly encouraged```
-
 **license**  
 Usage: ```"license": "Name of license your module is released under"```  
 Example: ```"license": "GNU GPL v3"```  
 Required: ```Yes, but defaults to GNU GPL v3 if not provided```
+
+**description**  
+Usage: ```"description": "Short markdown description of your module"```  
+Example: ```"description": "GUI for [analog inputs](labjack.com/support/faq/what-is-analog-input)."```  
+Required: ```No, but strongly encouraged```
 
 **homepage**  
 Usage: ```"homepage": "URL for the homepage for this module"```  
