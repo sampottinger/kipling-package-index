@@ -97,21 +97,24 @@ def update_user(username):
     new_password = flask.request.form['new_password']
 
     if not db_adapter.get_user(username):
-        return util.create_error_message(
+        return json.dumps(util.create_error_message(
             'Incorrect username or password provided.'
-        )
+        ))
     
     if not util.check_permissions(db_adapter, username, old_password):
-        return util.create_error_message(
+        return json.dumps(util.create_error_message(
             'Incorrect username or password provided.'
-        )
+        ))
 
     password_hash = generate_password_hash(new_password)
     db_adapter.put_user({
         'username': username,
         'password_hash': password_hash
     })
-    email_service.send_password_email(email, username)
+
+    user_info = db_adapter.get_user(username)
+
+    email_service.send_password_email(user_info['email'], username)
     return json.dumps(util.create_success_message('User password updated.'))
 
 
@@ -152,7 +155,9 @@ def create_package():
     form_info = flask.request.form
 
     if not check_permissions(form_info['username'], form_info['password']):
-        return util.create_error_message('Username or password incorrect.')
+        return json.dumps(
+            util.create_error_message('Username or password incorrect.')
+        )
     
     for field in db_service.ALLOWED_PACKAGE_FIELDS:
         if field in form_info:
@@ -160,19 +165,19 @@ def create_package():
 
     for field in db_service.MINIMUM_REQUIRED_PACKAGE_FIELDS:
         if not field in record:
-            return util.create_error_message(
+            return json.dumps(util.create_error_message(
                 field + ' is required but not provided.'
-            )
+            ))
 
     if db_adapter.get_package(record['name']):
-        return util.create_error_message(
+        return json.dumps(util.create_error_message(
             'A package by that name already exists.'
-        )
+        ))
 
     if not form_info['username'] in record['authors']:
-        return util.create_error_message(
+        return json.dumps(util.create_error_message(
             'Your username must be in the author\'s list.'
-        )
+        ))
 
     db_adapter.put_package(record)
     return json.dumps(util.create_success_message('Package created.'))
@@ -266,7 +271,9 @@ def update_package(package_name):
         package_name
     )
     if not has_permissions:
-        return util.create_error_message('Username or password incorrect.')
+        return json.dumps(
+            util.create_error_message('Username or password incorrect.')
+        )
     
     for field in db_service.ALLOWED_PACKAGE_FIELDS:
         if field in form_info:
@@ -274,14 +281,14 @@ def update_package(package_name):
 
     for field in db_service.MINIMUM_REQUIRED_PACKAGE_FIELDS:
         if not field in record:
-            return util.create_error_message(
+            return json.dumps(util.create_error_message(
                 field + ' is required but not provided.'
-            )
+            ))
 
     if not form_info['username'] in record['authors']:
-        return util.create_error_message(
+        return json.dumps(util.create_error_message(
             'Your username must be in the author\'s list.'
-        )
+        ))
 
     db_adapter.put_package(record)
     return json.dumps(util.create_success_message('Package updated.'))
