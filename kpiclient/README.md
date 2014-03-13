@@ -1,5 +1,5 @@
-Kipling Package Index command line tool.
-========================================
+Kipling Package Index command line tool
+=======================================
 
 Kipling Package Index command line tool that allows for basic management of user
 accounts as well as create, read, update, and delete (CRUD) control over the
