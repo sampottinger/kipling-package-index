@@ -41,24 +41,24 @@ Extra fields for module.json
 ----------------------------
 There are some extra fields that KPI looks for in your module.json file...
 
-**authors**
-Usage: ```"authors": [usernames authorized to modify this entry]```
-Example: ```"authors": ["samnsparky", "chrisJohn404"]```
+**authors**  
+Usage: ```"authors": [usernames authorized to modify this entry]```  
+Example: ```"authors": ["samnsparky", "chrisJohn404"]```  
 Required: ```Yes```
 
-**license**
-Usage: ```"license": "Name of license your module is released under"```
-Example: ```"license": "GNU GPL v3"```
+**license**  
+Usage: ```"license": "Name of license your module is released under"```  
+Example: ```"license": "GNU GPL v3"```  
 Required: ```Yes, but defaults to GNU GPL v3 if not provided```
 
-**homepage**
-Usage: ```"homepage": "URL for the homepage for this module"```
-Example: ```"homepage": "https://github.com/Samnsparky/kipling-package-index"```
+**homepage**  
+Usage: ```"homepage": "URL for the homepage for this module"```  
+Example: ```"homepage": "https://github.com/Samnsparky/kipling-package-index"```  
 Required: ```No```
 
-**repository**
-Usage: ```"repository": "URL to the repository for this module's code"```
-Example: ```"repository": "URL to the repository for this module's code"```
+**repository**  
+Usage: ```"repository": "URL to the repository for this module's code"```  
+Example: ```"repository": "URL to the repository for this module's code"```  
 Required: ```No```
 
 
