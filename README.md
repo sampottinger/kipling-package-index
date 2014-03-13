@@ -36,6 +36,14 @@ Example: ```kpicmd.py update simple_ain ./module.json ./simple_ain_001.zip```
 Usage: ```kpicmd.py delete [name of module]```  
 Example: ```kpicmd.py delete simple_ain```
 
+**Register a new username with KPI**  
+Usage: ```kpicmd.py useradd [username]```  
+Example: ```kpicmd.py useradd samnsparky```
+
+**Update user password for KPI**  
+Usage: ```kpicmd.py passwd [username]```  
+Example: ```kpicmd.py passwd samnsparky```
+
 <br>
 Extra fields for module.json
 ----------------------------
