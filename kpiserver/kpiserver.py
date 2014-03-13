@@ -271,9 +271,10 @@ def update_package(package_name):
         package_name
     )
     if not has_permissions:
-        return json.dumps(
-            util.create_error_message('Username or password incorrect.')
+        msg = util.create_error_message(
+            'Username, password, or package name incorrect.'
         )
+        return json.dumps(msg)
     
     for field in db_service.ALLOWED_PACKAGE_FIELDS:
         if field in form_info:
@@ -316,7 +317,19 @@ def delete_package():
     @return: JSON document
     @rtype: flask.response
     """
-    pass
+    has_permissions = check_permissions(
+        form_info['username'],
+        form_info['password'],
+        package_name
+    )
+    if not has_permissions:
+        msg = util.create_error_message(
+            'Username, password, or package name incorrect.'
+        )
+        return json.dumps(msg)
+
+    db_adapter.delete_package(package_name)
+    return json.dumps(util.create_success_message('Package deleted.'))
 
 
 if __name__ == '__main__':
