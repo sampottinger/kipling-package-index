@@ -56,7 +56,7 @@ Required: ```Yes```
 
 **description**  
 Usage: ```"description": "Short markdown description of your module"```  
-Example: ```"description": "Provides GUI for [analog inputs](http://labjack.com/support/faq/what-is-analog-input)."```  
+Example: ```"description": "GUI for [analog inputs](labjack.com/support/faq/what-is-analog-input)."```  
 Required: ```No, but strongly encouraged```
 
 **license**  
