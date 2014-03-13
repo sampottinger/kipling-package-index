@@ -64,14 +64,19 @@ Form-encoded params: none
 
 JSON-document returned:
 
- - ```authors``` CSV list of usernames who have authorial access to this package.
- - ```license``` String description of the license the package is released under (like MIT or GNU GPL v3)
- - ```name``` The machine safe name (any valid javascript identifier) of the package. 
- - ```humanName``` The name of the package to present to the user (can be any valid string).
- - ```version``` The major.minor.incremental (ex: 1.2.34) version number that this package is currently releasing.
- - ```description``` Human-friendly short description of the package. May contain markdown and may be a blank string.
- - ```homepage``` The URL to a website with more information for this package. May be a blank string.
- - ```repository``` The URL to a repository with the source for this package. May be a blank string.
+ - ```successful``` Boolean indicating if the package was found and read successfully.
+ - ```message``` Information about the error encountered. Blank if no error.
+ - ```username``` The username of the user who is updating the package.
+ - ```password``` The password of the user who is updating the package.
+ - ```record``` Information about the package.
+   - ```authors``` CSV list of usernames who have authorial access to this package.
+   - ```license``` String description of the license the package is released under (like MIT or GNU GPL v3)
+   - ```name``` The machine safe name (any valid javascript identifier) of the package. 
+   - ```humanName``` The name of the package to present to the user (can be any valid string).
+   - ```version``` The major.minor.incremental (ex: 1.2.34) version number that this package is currently releasing.
+   - ```description``` Human-friendly short description of the package. May contain markdown and may be a blank string.
+   - ```homepage``` The URL to a website with more information for this package. May be a blank string.
+   - ```repository``` The URL to a repository with the source for this package. May be a blank string.
 
 <br>
 **PUT /kpi/package/<package_name>.json**  

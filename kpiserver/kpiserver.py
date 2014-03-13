@@ -186,22 +186,26 @@ def read_package(package_name):
 
     JSON-document returned:
 
+     - ```successful``` Boolean indicating if the package was found and read
+       successfully.
+     - ```message``` Information about the error encountered. Blank if no error.
      - ```authors``` CSV list of usernames who have authorial access to this
        package.
      - ```license``` String description of the license the package is released
        under (like MIT or GNU GPL v3)
-     - ```name``` The machine safe name (any valid javascript identifier) of the
-       package. 
-     - ```humanName``` The name of the package to present to the user (can be
-       any valid string).
-     - ```version``` The major.minor.incremental (ex: 1.2.34) version number
-       that this package is currently releasing.
-     - ```description``` Human-friendly short description of the package. May
-       contain markdown and may be a blank string.
-     - ```homepage``` The URL to a website with more information for this
-       package. May be a blank string.
-     - ```repository``` The URL to a repository with the source for this
-       package. May be a blank string.
+     - ```record``` Information about the package.
+       - ```name``` The machine safe name (any valid javascript identifier) of
+         the package. 
+       - ```humanName``` The name of the package to present to the user (can be
+         any valid string).
+       - ```version``` The major.minor.incremental (ex: 1.2.34) version number
+         that this package is currently releasing.
+       - ```description``` Human-friendly short description of the package. May
+         contain markdown and may be a blank string.
+       - ```homepage``` The URL to a website with more information for this
+         package. May be a blank string.
+       - ```repository``` The URL to a repository with the source for this
+         package. May be a blank string.
 
     @param package_name: The name of the package to retrieve information about.
     @type package_name: str
