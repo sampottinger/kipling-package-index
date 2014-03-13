@@ -71,7 +71,7 @@ Required: ```No```
 
 **repository**  
 Usage: ```"repository": "URL to the repository for this module's code"```  
-Example: ```"repository": "URL to the repository for this module's code"```  
+Example: ```"repository": "https://github.com/Samnsparky/kipling-package-index.git"```  
 Required: ```No```
 
 
