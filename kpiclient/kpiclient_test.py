@@ -252,10 +252,13 @@ class KPIClientTests(mox.MoxTestBase):
 
     def test_useradd(self):
         self.mox.StubOutWithMock(requests, 'post')
-        requests.post(kpiclient.USERS_URL, data={'username': 'testuser'})
+        requests.post(kpiclient.USERS_URL, data={
+            'username': 'testuser',
+            'email': 'test@example.com'
+        })
         self.mox.ReplayAll()
 
-        kpiclient.useradd('testuser')
+        kpiclient.useradd('testuser', 'test@example.com')
 
     def test_passwd(self):
         self.mox.StubOutWithMock(requests, 'post')

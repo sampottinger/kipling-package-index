@@ -46,7 +46,7 @@ import sys
 
 import requests
 
-BASE_URL = 'https://kiplingwebservices.herokuapp.com/'
+BASE_URL = 'https://kiplingwebservices.herokuapp.com/kpi/'
 USERS_URL = BASE_URL + 'users.json'
 USER_URL = BASE_URL + 'user/%s.json'
 PACKAGES_URL = BASE_URL + 'packages.json'
@@ -343,7 +343,7 @@ def delete(user_info, package_name):
     return requests.delete(PACKAGE_URL % package_name, data=payload)
 
 
-def useradd(username):
+def useradd(username, email):
     """Add a new user to the package index user access control system.
 
     @param username: The name of the user to add to the package index.
@@ -351,7 +351,7 @@ def useradd(username):
     @return: Response from the server for the original HTTP request.
     @rtype: requests.models.Response
     """
-    payload = {'username': username}
+    payload = {'username': username, 'email': email}
     return requests.post(USERS_URL, data=payload)
 
 
@@ -495,7 +495,9 @@ def main_useradd():
 
     username = params[0]
 
-    return useradd(username)
+    email_address = raw_input('Email address: ')
+
+    return useradd(username, email_address)
 
 
 def main_passwd():
