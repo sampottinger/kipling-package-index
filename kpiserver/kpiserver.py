@@ -64,7 +64,7 @@ def create_user():
         'email': email,
         'password_hash': password_hash
     })
-    email_service.send_password_email(username, new_password)
+    email_service.send_password_email(email, username, new_password)
     return json.dumps(util.create_success_message('User account created.'))
 
 
@@ -111,7 +111,7 @@ def update_user(username):
         'username': username,
         'password_hash': password_hash
     })
-    email_service.send_password_email(username)
+    email_service.send_password_email(email, username)
     return json.dumps(util.create_success_message('User password updated.'))
 
 
