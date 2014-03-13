@@ -20,20 +20,20 @@ Installation
 <br>
 Usage
 -----
-**Create a package**
-Usage: ```kpicmd.py create [name of module] [path to module.json]  [path to zip archive]```
+**Create a package**  
+Usage: ```kpicmd.py create [name of module] [path to module.json]  [path to zip archive]```  
 Example: ```kpicmd.py create simple_ain ./module.json ./simple_ain_001.zip```
 
-**Read current information about a package**
-Usage: ```kpicmd.py read [name of module]```
+**Read current information about a package**  
+Usage: ```kpicmd.py read [name of module]```  
 Example: ```kpicmd.py read simple_ain```
 
-**Update a package**
-Usage: ```kpicmd.py update [name of module] [path to module.json] [path to zip archive]```
+**Update a package**  
+Usage: ```kpicmd.py update [name of module] [path to module.json] [path to zip archive]```  
 Example: ```kpicmd.py update simple_ain ./module.json ./simple_ain_001.zip```
 
-**Delete a package**
-Usage: ```kpicmd.py delete [name of module]```
+**Delete a package**  
+Usage: ```kpicmd.py delete [name of module]```  
 Example: ```kpicmd.py delete simple_ain```
 
 <br>
