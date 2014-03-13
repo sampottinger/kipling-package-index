@@ -338,7 +338,7 @@ def delete(user_info, package_name):
     @return: Response from the server for the original HTTP request.
     @rtype: requests.models.Response
     """
-    payload = {}
+    payload = {'name': package_name}
     add_user_info(user_info, payload)
     return requests.delete(PACKAGE_URL % package_name, data=payload)
 
