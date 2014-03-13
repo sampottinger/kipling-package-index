@@ -23,7 +23,7 @@ JSON-document returned:
   
 
 <br>
-**PUT /kpi/user/<username>.json**  
+**PUT /kpi/user/username.json**  
 Updates a user in the user access controls service for the package index. This includes modifying the user's password.
 
 Form-encdoded params:
@@ -58,7 +58,7 @@ JSON-document returned:
  - ```message``` Details about the result of the operation. Will be provided in both the success and failure cases.
 
 <br>
-**GET /kpi/package/<package_name>.json**  
+**GET /kpi/package/package_name.json**  
 
 Form-encoded params: none
 
@@ -79,7 +79,7 @@ JSON-document returned:
    - ```repository``` The URL to a repository with the source for this package. May be a blank string.
 
 <br>
-**PUT /kpi/package/<package_name>.json**  
+**PUT /kpi/package/package_name.json**  
 Update an existing package in the index. A prior packages must have the same name, the submitting user must have permissions to edit that package, and the submitting user must be in the authors list.
 
 Form-encoded params:  
@@ -99,7 +99,7 @@ JSON-document returned:
  - ```message``` Details about the result of the operation. Will be provided in both the success and failure cases.
 
 <br>
-**DELETE /kpi/package/<package_name>.json**  
+**DELETE /kpi/package/package_name.json**  
 Remove a new package from the the index. A prior packages must have the same name and the submitting user must have permissions to edit that package.
 
 Form-encoded params:  
