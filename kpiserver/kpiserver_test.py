@@ -6,7 +6,6 @@
 """
 import copy
 import json
-
 import unittest
 
 import mox
