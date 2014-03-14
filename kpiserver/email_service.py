@@ -63,7 +63,7 @@ def get_client(application):
         necessary for interacting with the mailing service.
     @type application: flask.Flask
     @return: Implementor of EmailServiceAdapter
-    @type: EmailServiceAdapter
+    @rtype: EmailServiceAdapter
     """
     return MandrillAdapter(mandrill.Mandrill(api_key))
 
