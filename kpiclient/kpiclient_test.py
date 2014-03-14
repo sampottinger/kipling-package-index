@@ -244,7 +244,7 @@ class KPIClientTests(mox.MoxTestBase):
 
         requests.delete(
             kpiclient.PACKAGE_URL % package_name,
-            data={'username': 'user', 'password': 'pass'}
+            data={'username': 'user', 'password': 'pass', 'name': package_name}
         ).AndReturn(test_response)
         self.mox.ReplayAll()
 
