@@ -64,7 +64,7 @@ def create_user():
         'email': email,
         'password_hash': password_hash
     })
-    email_service.send_password_email(email, username, new_password)
+    email_service.send_password_email(app, email, username, new_password)
     return json.dumps(util.create_success_message('User account created.'))
 
 
@@ -114,7 +114,7 @@ def update_user(username):
 
     user_info = db_adapter.get_user(username)
 
-    email_service.send_password_email(user_info['email'], username)
+    email_service.send_password_email(app, user_info['email'], username)
     return json.dumps(util.create_success_message('User password updated.'))
 
 
