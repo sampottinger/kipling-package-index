@@ -1,4 +1,9 @@
+import random
+import string
+
 from werkzeug.security import generate_password_hash, check_password_hash
+
+PASS_SIZE = 10
 
 
 def check_permissions(db_adapter, username, password, package=None):
@@ -22,12 +27,17 @@ def check_permissions(db_adapter, username, password, package=None):
 
 
 def create_success_message(message):
-    pass
+    return {'success': True, 'message': message}
 
 
 def create_error_message(message):
-    pass
+    return {'success': False, 'message': message}
 
 
 def generate_password():
-    pass
+    characters = string.ascii_uppercase + string.digits
+    return ''.join(random.choice(characters) for _ in range(PASS_SIZE))
+
+
+def process_authors(record):
+    record['authors'] = record['authors'].replace(' ', '').split(',')

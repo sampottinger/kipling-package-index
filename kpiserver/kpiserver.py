@@ -29,7 +29,7 @@ def create_user():
     Create a new user in the user access controls service for the package index.
     This causes an email to be sent to the new user with a temporary password.
 
-    Form-encdoded params:  
+    Form-encdoded params:
 
      - ```username``` The name of the new user.
      - ```email``` The email address for the new user.
@@ -48,14 +48,14 @@ def create_user():
     email = flask.request.form['email']
 
     if db_adapter.get_user(username):
-        return util.create_error_message(
+        return json.dumps(util.create_error_message(
             'A user with that username or email address already exists.'
-        )
+        ))
 
     if db_adapter.get_user_by_email(email):
-        return util.create_error_message(
+        return json.dumps(util.create_error_message(
             'A user with that username or email address already exists.'
-        )
+        ))
 
     new_password = util.generate_password()
     password_hash = generate_password_hash(new_password)
@@ -100,7 +100,7 @@ def update_user(username):
         return json.dumps(util.create_error_message(
             'Incorrect username or password provided.'
         ))
-    
+
     if not util.check_permissions(db_adapter, username, old_password):
         return json.dumps(util.create_error_message(
             'Incorrect username or password provided.'
@@ -125,7 +125,7 @@ def create_package():
     Create a new package in the index. No prior packages may have the same name
     and the submitting user must be in the authors list.
 
-    Form-encoded params:  
+    Form-encoded params:
 
      - ```username``` The username of the user who is creating a new package.
      - ```password``` The password of the user who is creating a new package.
@@ -154,11 +154,16 @@ def create_package():
     record = {}
     form_info = flask.request.form
 
-    if not check_permissions(form_info['username'], form_info['password']):
+    has_permissions = util.check_permissions(
+        db_adapter,
+        form_info['username'],
+        form_info['password']
+    )
+    if not has_permissions:
         return json.dumps(
             util.create_error_message('Username or password incorrect.')
         )
-    
+
     for field in db_service.ALLOWED_PACKAGE_FIELDS:
         if field in form_info:
             record[field] = form_info[field]
@@ -174,6 +179,7 @@ def create_package():
             'A package by that name already exists.'
         ))
 
+    util.process_authors(record)
     if not form_info['username'] in record['authors']:
         return json.dumps(util.create_error_message(
             'Your username must be in the author\'s list.'
@@ -200,7 +206,7 @@ def read_package(package_name):
        under (like MIT or GNU GPL v3)
      - ```record``` Information about the package.
        - ```name``` The machine safe name (any valid javascript identifier) of
-         the package. 
+         the package.
        - ```humanName``` The name of the package to present to the user (can be
          any valid string).
        - ```version``` The major.minor.incremental (ex: 1.2.34) version number
@@ -265,7 +271,8 @@ def update_package(package_name):
     record = {}
     form_info = flask.request.form
 
-    has_permissions = check_permissions(
+    has_permissions = util.check_permissions(
+        db_adapter,
         form_info['username'],
         form_info['password'],
         package_name
@@ -275,7 +282,7 @@ def update_package(package_name):
             'Username, password, or package name incorrect.'
         )
         return json.dumps(msg)
-    
+
     for field in db_service.ALLOWED_PACKAGE_FIELDS:
         if field in form_info:
             record[field] = form_info[field]
@@ -286,23 +293,19 @@ def update_package(package_name):
                 field + ' is required but not provided.'
             ))
 
-    if not form_info['username'] in record['authors']:
-        return json.dumps(util.create_error_message(
-            'Your username must be in the author\'s list.'
-        ))
-
+    util.process_authors(record)
     db_adapter.put_package(record)
     return json.dumps(util.create_success_message('Package updated.'))
 
 
-@app.route('/kpi/package/<package_name>.json', methods=['DELETE'])
-def delete_package():
+@app.route('/kpi/package/<package_name>.json/delete', methods=['POST'])
+def delete_package(package_name):
     """Remove a package from the index.
 
     Remove a new package from the the index. A prior packages must have the same
     name and the submitting user must have permissions to edit that package.
 
-    Form-encoded params:  
+    Form-encoded params:
 
      - ```username``` The username of the user who is deleting the package.
      - ```password``` The password of the user who is deleting the package.
@@ -317,9 +320,10 @@ def delete_package():
     @return: JSON document
     @rtype: flask.response
     """
-    has_permissions = check_permissions(
-        form_info['username'],
-        form_info['password'],
+    has_permissions = util.check_permissions(
+        db_adapter,
+        flask.request.form['username'],
+        flask.request.form['password'],
         package_name
     )
     if not has_permissions:
@@ -333,4 +337,5 @@ def delete_package():
 
 
 if __name__ == '__main__':
+    #db_adapter.initialize_indicies()
     app.run()
