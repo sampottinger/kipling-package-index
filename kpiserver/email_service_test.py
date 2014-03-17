@@ -26,7 +26,7 @@ class MockApplication:
 
 class EmailServiceTests(mox.MoxTestBase):
 
-    def test_send_password_email(self):
+    def test_send_password_email_with_password(self):
         test_adapter = self.mox.CreateMock(email_service.MandrillServiceAdapter)
 
         test_application = MockApplication({
@@ -62,7 +62,7 @@ class EmailServiceTests(mox.MoxTestBase):
             TEST_PASSWORD
         )
 
-    def test_send_password_email(self):
+    def test_send_password_email_no_password(self):
         test_adapter = self.mox.CreateMock(email_service.MandrillServiceAdapter)
 
         test_application = MockApplication({
