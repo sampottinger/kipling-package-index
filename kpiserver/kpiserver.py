@@ -15,6 +15,7 @@ from werkzeug.security import generate_password_hash
 
 import db_service
 import email_service
+import file_store_service
 import util
 
 app = flask.Flask(__name__)
@@ -269,6 +270,7 @@ def update_package(package_name):
     record = {}
     form_info = flask.request.form
 
+    # Check that the user has sufficient permissions to modify the package info.
     has_permissions = util.check_permissions(
         db_adapter,
         form_info['username'],
@@ -281,6 +283,8 @@ def update_package(package_name):
         )
         return json.dumps(msg)
 
+    # Check for all required fields for the package metadata document and that
+    # no unallowed fields are being inclued
     for field in db_service.ALLOWED_PACKAGE_FIELDS:
         if field in form_info:
             record[field] = form_info[field]
@@ -291,9 +295,22 @@ def update_package(package_name):
                 field + ' is required but not provided.'
             ))
 
+    # Save to the data persistance service
     util.process_authors(record)
     db_adapter.put_package(record)
-    return json.dumps(util.create_success_message('Package updated.'))
+
+    # Generate soon to be JSON-ified dictionary indicating a successful package
+    # update.
+    ret_status = util.create_success_message('Package updated.')
+    
+    # Add information about where the updated package code could be posted.
+    ret_status['upload_url'] = file_store_service.create_file_upload_url(
+        app,
+        package_name
+    )
+    ret_status['upload_spec'] = {}
+
+    return json.dumps(ret_status)
 
 
 @app.route('/kpi/package/<package_name>.json/delete', methods=['POST'])
