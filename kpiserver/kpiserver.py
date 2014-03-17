@@ -19,6 +19,7 @@ import file_store_service
 import util
 
 app = flask.Flask(__name__)
+app.config.from_pyfile('kpiserver.cfg', silent=True)
 
 
 @app.route('/kpi/users.json', methods=['POST'])
