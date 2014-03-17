@@ -334,6 +334,17 @@ def delete_package(package_name):
     return json.dumps(util.create_success_message('Package deleted.'))
 
 
+@app.route('/kpi/status.json', methods=['GET'])
+def status():
+    """Check the status of the application.
+
+    @return: JSON document with success and message fields.
+    @rtype: flask.response
+    """
+    db_adapter.initialize_indicies()
+    return json.dumps(util.create_success_message("No errors detected."))
+
+
 if __name__ == '__main__':
     mongo = PyMongo(app)
     db_adapter = db_service.DBAdapter(mongo)

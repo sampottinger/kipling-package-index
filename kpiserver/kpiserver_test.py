@@ -463,6 +463,18 @@ class KPIServerTests(mox.MoxTestBase):
         json_result = json.loads(response.data)
         self.assertTrue(json_result['success'])
 
+    def test_status(self):
+        test_adapter = self.mox.CreateMock(db_service.DBAdapter)
+        test_adapter.initialize_indicies()
+        self.mox.ReplayAll()
+
+        kpiserver.db_adapter = test_adapter
+
+        response = self.app.get('/kpi/status.json')
+        self.assertEqual(response.status_code, 200)
+        json_result = json.loads(response.data)
+        self.assertTrue(json_result['success'])
+
 
 if __name__ == '__main__':
     unittest.main()
