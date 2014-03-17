@@ -153,6 +153,7 @@ def create_package():
     record = {}
     form_info = flask.request.form
 
+    # Check that the user has the necessary access permissions
     has_permissions = util.check_permissions(
         db_adapter,
         form_info['username'],
@@ -163,6 +164,8 @@ def create_package():
             util.create_error_message('Username or password incorrect.')
         )
 
+    # Check that the new package metadata has all required fields and that no
+    # unallowed fields are included.
     for field in db_service.ALLOWED_PACKAGE_FIELDS:
         if field in form_info:
             record[field] = form_info[field]
@@ -173,19 +176,35 @@ def create_package():
                 field + ' is required but not provided.'
             ))
 
+    # Check that a package of the same name does not already exist
     if db_adapter.get_package(record['name']):
         return json.dumps(util.create_error_message(
             'A package by that name already exists.'
         ))
 
+    # Check that the user is in the authors list
     util.process_authors(record)
     if not form_info['username'] in record['authors']:
         return json.dumps(util.create_error_message(
             'Your username must be in the author\'s list.'
         ))
 
+    # Save the package in the data persistance mechanism
     db_adapter.put_package(record)
-    return json.dumps(util.create_success_message('Package created.'))
+
+    # Create a soon to be JSON-ified dictionary indicating that the package
+    # was successfully added
+    ret_dict = util.create_success_message('Package created.')
+
+    # Add information about where the package source can be uploaded including
+    # a signed temporary upload URL
+    ret_dict['upload_url'] = file_store_service.create_file_upload_url(
+        app,
+        record['name']
+    )
+    ret_dict['upload_spec'] = {}
+
+    return json.dumps(ret_dict)
 
 
 @app.route('/kpi/package/<package_name>.json', methods=['GET'])

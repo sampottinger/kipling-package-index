@@ -203,6 +203,7 @@ class KPIServerTests(mox.MoxTestBase):
 
     def test_create_package_invalid_password(self):
         self.mox.StubOutWithMock(util, 'check_permissions')
+        self.mox.StubOutWithMock(file_store_service, 'create_file_upload_url')
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
 
         util.check_permissions(
@@ -231,6 +232,7 @@ class KPIServerTests(mox.MoxTestBase):
 
     def test_create_package_prior_name(self):
         self.mox.StubOutWithMock(util, 'check_permissions')
+        self.mox.StubOutWithMock(file_store_service, 'create_file_upload_url')
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
 
         util.check_permissions(
@@ -261,6 +263,7 @@ class KPIServerTests(mox.MoxTestBase):
 
     def test_create_package_not_author(self):
         self.mox.StubOutWithMock(util, 'check_permissions')
+        self.mox.StubOutWithMock(file_store_service, 'create_file_upload_url')
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
 
         util.check_permissions(
@@ -291,6 +294,7 @@ class KPIServerTests(mox.MoxTestBase):
 
     def test_create_package_success(self):
         self.mox.StubOutWithMock(util, 'check_permissions')
+        self.mox.StubOutWithMock(file_store_service, 'create_file_upload_url')
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
 
         util.check_permissions(
@@ -300,8 +304,12 @@ class KPIServerTests(mox.MoxTestBase):
         ).AndReturn(True)
 
         test_adapter.get_package(TEST_NAME).AndReturn(None)
-
         test_adapter.put_package(TEST_PACKAGE)
+
+        file_store_service.create_file_upload_url(
+            kpiserver.app,
+            TEST_NAME
+        ).AndReturn(TEST_UPLOAD_URL)
 
         self.mox.ReplayAll()
 
@@ -320,6 +328,7 @@ class KPIServerTests(mox.MoxTestBase):
         self.assertEqual(response.status_code, 200)
         json_result = json.loads(response.data)
         self.assertTrue(json_result['success'])
+        self.assertEqual(json_result['upload_url'], TEST_UPLOAD_URL)
 
     def test_read_package_not_found(self):
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
