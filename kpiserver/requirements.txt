@@ -3,4 +3,3 @@ mandrill
 mox==0.5.3
 Flask-PyMongo
 pymongo
-bson
