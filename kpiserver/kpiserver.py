@@ -18,8 +18,6 @@ import email_service
 import util
 
 app = flask.Flask(__name__)
-mongo = PyMongo(app)
-db_adapter = db_service.DBAdapter(mongo)
 
 
 @app.route('/kpi/users.json', methods=['POST'])
@@ -337,5 +335,6 @@ def delete_package(package_name):
 
 
 if __name__ == '__main__':
-    #db_adapter.initialize_indicies()
+    mongo = PyMongo(app)
+    db_adapter = db_service.DBAdapter(mongo)
     app.run()

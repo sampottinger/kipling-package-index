@@ -98,6 +98,14 @@ class KPIServerTests(mox.MoxTestBase):
             'password_hash': mox.IsA(basestring)
         })
 
+        self.mox.StubOutWithMock(email_service, 'send_password_email')
+        email_service.send_password_email(
+            kpiserver.app,
+            TEST_EMAIL,
+            TEST_USERNAME,
+            mox.IsA(basestring)
+        )
+
         self.mox.ReplayAll()
 
         kpiserver.db_adapter = test_adapter
@@ -172,7 +180,11 @@ class KPIServerTests(mox.MoxTestBase):
 
         # Get email address for user and send password update
         test_adapter.get_user(TEST_USERNAME).AndReturn(TEST_USER)
-        email_service.send_password_email(TEST_EMAIL, TEST_USERNAME)
+        email_service.send_password_email(
+            kpiserver.app,
+            TEST_EMAIL,
+            TEST_USERNAME
+        )
 
         self.mox.ReplayAll()
 
