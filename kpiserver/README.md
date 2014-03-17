@@ -6,6 +6,38 @@ as well as create, read, update, and delete (CRUD) control over the package
 index. Also provides access to S3 uploads for the packages themselves.
 
 <br>
+Configuration values
+--------------------
+The Kipling Package Index server has some configuration values stored in kpiserver.cfg to allow for multiple deployment. Required values are:
+
+**Outbound email settings**  
+Currently, KPI only supports Mandrill for transactional outbound emails.
+
+ - ```EMAIL_FROM_ADDRESS``` The email address that kpiserver should send from.
+ - ```EMAIL_FROM_NAME``` The human name of the person or service to report emails as having been sent from.
+ - ```MANDRILL_API_KEY``` The API key to use to access the Mandrill transactional email service.
+
+
+**File uploads / source hosting**  
+Currently, KPI only supports using Amazon Web Services' S3 for storing and serving file uploads / Kipling package sources.
+
+ - ```UPLOADS_BUCKET_NAME``` The S3 bucket where uploads should be saved.
+ - ```S3_SECRET_KEY``` The private key to use when interacting with Amazon Web Services.
+ - ```S3_ACCESS_KEY``` The user key identifying the user account to interact with Amazon Web Services.
+
+
+**Data peristance service**  
+Currently, KPI only supports Mongodb as the data persistance backend:
+
+ - ```MONGO_URI``` URI with user and connection information for the data persistance backend.
+
+
+**Top-level application settings**
+
+ - ```DEBUG``` Boolean value indicating if stack traces and detailed debug information should be provided in the instance of an error.
+
+
+<br>
 Endpoints
 ---------
 **POST /kpi/users.json**  

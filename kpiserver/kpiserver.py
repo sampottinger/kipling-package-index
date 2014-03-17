@@ -15,11 +15,11 @@ from werkzeug.security import generate_password_hash
 
 import db_service
 import email_service
+import file_store_service
 import util
 
 app = flask.Flask(__name__)
-mongo = PyMongo(app)
-db_adapter = db_service.DBAdapter(mongo)
+app.config.from_pyfile('kpiserver.cfg', silent=True)
 
 
 @app.route('/kpi/users.json', methods=['POST'])
@@ -118,6 +118,47 @@ def update_user(username):
     return json.dumps(util.create_success_message('User password updated.'))
 
 
+@app.route('/kpi/user/<username>/reset.json', methods=['POST'])
+def reset_user_password(username):
+    """Resets a user's password for manipulating the package index.
+
+    JSON-document returned:
+
+     - ```success``` Boolean value indicating if successful. Will be true if the
+       user was updated and false otherwise.
+     - ```message``` Details about the result of the operation. Will be provided
+       in both the success and failure cases.
+
+    @param username: The name of the user to modify as read from the url.
+    @type username: str
+    @return: JSON document
+    @rtype: flask.response
+    """
+    if not db_adapter.get_user(username):
+        return json.dumps(util.create_error_message(
+            'Whoops! There was an error on the server.'
+        ))
+
+    new_password = util.generate_password()
+    password_hash = generate_password_hash(new_password)
+    db_adapter.put_user({
+        'username': username,
+        'password_hash': password_hash
+    })
+
+    user_info = db_adapter.get_user(username)
+
+    email_service.send_password_email(
+        app,
+        user_info['email'],
+        username,
+        new_password
+    )
+    return json.dumps(util.create_success_message(
+        'Password reset. Please check your email inbox.'
+    ))
+
+
 @app.route('/kpi/packages.json', methods=['POST'])
 def create_package():
     """Create a new package in the Kipling package index.
@@ -154,6 +195,7 @@ def create_package():
     record = {}
     form_info = flask.request.form
 
+    # Check that the user has the necessary access permissions
     has_permissions = util.check_permissions(
         db_adapter,
         form_info['username'],
@@ -164,6 +206,8 @@ def create_package():
             util.create_error_message('Username or password incorrect.')
         )
 
+    # Check that the new package metadata has all required fields and that no
+    # unallowed fields are included.
     for field in db_service.ALLOWED_PACKAGE_FIELDS:
         if field in form_info:
             record[field] = form_info[field]
@@ -174,19 +218,35 @@ def create_package():
                 field + ' is required but not provided.'
             ))
 
+    # Check that a package of the same name does not already exist
     if db_adapter.get_package(record['name']):
         return json.dumps(util.create_error_message(
             'A package by that name already exists.'
         ))
 
+    # Check that the user is in the authors list
     util.process_authors(record)
     if not form_info['username'] in record['authors']:
         return json.dumps(util.create_error_message(
             'Your username must be in the author\'s list.'
         ))
 
+    # Save the package in the data persistance mechanism
     db_adapter.put_package(record)
-    return json.dumps(util.create_success_message('Package created.'))
+
+    # Create a soon to be JSON-ified dictionary indicating that the package
+    # was successfully added
+    ret_dict = util.create_success_message('Package created.')
+
+    # Add information about where the package source can be uploaded including
+    # a signed temporary upload URL
+    ret_dict['upload_url'] = file_store_service.create_file_upload_url(
+        app,
+        record['name']
+    )
+    ret_dict['upload_spec'] = {}
+
+    return json.dumps(ret_dict)
 
 
 @app.route('/kpi/package/<package_name>.json', methods=['GET'])
@@ -271,6 +331,7 @@ def update_package(package_name):
     record = {}
     form_info = flask.request.form
 
+    # Check that the user has sufficient permissions to modify the package info.
     has_permissions = util.check_permissions(
         db_adapter,
         form_info['username'],
@@ -283,6 +344,8 @@ def update_package(package_name):
         )
         return json.dumps(msg)
 
+    # Check for all required fields for the package metadata document and that
+    # no unallowed fields are being inclued
     for field in db_service.ALLOWED_PACKAGE_FIELDS:
         if field in form_info:
             record[field] = form_info[field]
@@ -293,9 +356,22 @@ def update_package(package_name):
                 field + ' is required but not provided.'
             ))
 
+    # Save to the data persistance service
     util.process_authors(record)
     db_adapter.put_package(record)
-    return json.dumps(util.create_success_message('Package updated.'))
+
+    # Generate soon to be JSON-ified dictionary indicating a successful package
+    # update.
+    ret_status = util.create_success_message('Package updated.')
+    
+    # Add information about where the updated package code could be posted.
+    ret_status['upload_url'] = file_store_service.create_file_upload_url(
+        app,
+        package_name
+    )
+    ret_status['upload_spec'] = {}
+
+    return json.dumps(ret_status)
 
 
 @app.route('/kpi/package/<package_name>.json/delete', methods=['POST'])
@@ -336,6 +412,18 @@ def delete_package(package_name):
     return json.dumps(util.create_success_message('Package deleted.'))
 
 
+@app.route('/kpi/status.json', methods=['GET'])
+def status():
+    """Check the status of the application.
+
+    @return: JSON document with success and message fields.
+    @rtype: flask.response
+    """
+    db_adapter.initialize_indicies()
+    return json.dumps(util.create_success_message("No errors detected."))
+
+
 if __name__ == '__main__':
-    #db_adapter.initialize_indicies()
+    mongo = PyMongo(app)
+    db_adapter = db_service.DBAdapter(mongo)
     app.run()

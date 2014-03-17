@@ -65,6 +65,7 @@ def get_client(application):
     @return: Implementor of EmailServiceAdapter
     @rtype: EmailServiceAdapter
     """
+    api_key = application.config['MANDRILL_API_KEY']
     return MandrillAdapter(mandrill.Mandrill(api_key))
 
 

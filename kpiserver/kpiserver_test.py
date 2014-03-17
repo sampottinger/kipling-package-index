@@ -12,6 +12,7 @@ import mox
 
 import db_service
 import email_service
+import file_store_service
 import kpiserver
 import util
 
@@ -25,6 +26,7 @@ TEST_USER = {
     'password_hash': TEST_HASH,
     'email': TEST_EMAIL
 }
+TEST_UPLOAD_URL = 'test upload URL'
 
 TEST_LICENSE = 'license'
 TEST_NAME = 'name'
@@ -97,6 +99,14 @@ class KPIServerTests(mox.MoxTestBase):
             'email': TEST_EMAIL,
             'password_hash': mox.IsA(basestring)
         })
+
+        self.mox.StubOutWithMock(email_service, 'send_password_email')
+        email_service.send_password_email(
+            kpiserver.app,
+            TEST_EMAIL,
+            TEST_USERNAME,
+            mox.IsA(basestring)
+        )
 
         self.mox.ReplayAll()
 
@@ -172,7 +182,11 @@ class KPIServerTests(mox.MoxTestBase):
 
         # Get email address for user and send password update
         test_adapter.get_user(TEST_USERNAME).AndReturn(TEST_USER)
-        email_service.send_password_email(TEST_EMAIL, TEST_USERNAME)
+        email_service.send_password_email(
+            kpiserver.app,
+            TEST_EMAIL,
+            TEST_USERNAME
+        )
 
         self.mox.ReplayAll()
 
@@ -187,8 +201,43 @@ class KPIServerTests(mox.MoxTestBase):
         json_result = json.loads(response.data)
         self.assertTrue(json_result['success'])
 
+    def test_reset_user_success(self):
+        self.mox.StubOutWithMock(util, 'generate_password')
+        self.mox.StubOutWithMock(email_service, 'send_password_email')
+        test_adapter = self.mox.CreateMock(db_service.DBAdapter)
+
+        # Get through UAC
+        test_adapter.get_user(TEST_USERNAME).AndReturn(TEST_USER)
+        util.generate_password().AndReturn(TEST_PASSWORD)
+
+        # Update the user
+        test_adapter.put_user({
+            'username': TEST_USERNAME,
+            'password_hash': mox.IsA(basestring)
+        })
+
+        # Get email address for user and send password update
+        test_adapter.get_user(TEST_USERNAME).AndReturn(TEST_USER)
+        email_service.send_password_email(
+            kpiserver.app,
+            TEST_EMAIL,
+            TEST_USERNAME,
+            TEST_PASSWORD
+        )
+
+        self.mox.ReplayAll()
+
+        kpiserver.db_adapter = test_adapter
+
+        response = self.app.post('/kpi/user/%s/reset.json' % TEST_USERNAME)
+
+        self.assertEqual(response.status_code, 200)
+        json_result = json.loads(response.data)
+        self.assertTrue(json_result['success'])
+
     def test_create_package_invalid_password(self):
         self.mox.StubOutWithMock(util, 'check_permissions')
+        self.mox.StubOutWithMock(file_store_service, 'create_file_upload_url')
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
 
         util.check_permissions(
@@ -217,6 +266,7 @@ class KPIServerTests(mox.MoxTestBase):
 
     def test_create_package_prior_name(self):
         self.mox.StubOutWithMock(util, 'check_permissions')
+        self.mox.StubOutWithMock(file_store_service, 'create_file_upload_url')
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
 
         util.check_permissions(
@@ -247,6 +297,7 @@ class KPIServerTests(mox.MoxTestBase):
 
     def test_create_package_not_author(self):
         self.mox.StubOutWithMock(util, 'check_permissions')
+        self.mox.StubOutWithMock(file_store_service, 'create_file_upload_url')
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
 
         util.check_permissions(
@@ -277,6 +328,7 @@ class KPIServerTests(mox.MoxTestBase):
 
     def test_create_package_success(self):
         self.mox.StubOutWithMock(util, 'check_permissions')
+        self.mox.StubOutWithMock(file_store_service, 'create_file_upload_url')
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
 
         util.check_permissions(
@@ -286,8 +338,12 @@ class KPIServerTests(mox.MoxTestBase):
         ).AndReturn(True)
 
         test_adapter.get_package(TEST_NAME).AndReturn(None)
-
         test_adapter.put_package(TEST_PACKAGE)
+
+        file_store_service.create_file_upload_url(
+            kpiserver.app,
+            TEST_NAME
+        ).AndReturn(TEST_UPLOAD_URL)
 
         self.mox.ReplayAll()
 
@@ -306,6 +362,7 @@ class KPIServerTests(mox.MoxTestBase):
         self.assertEqual(response.status_code, 200)
         json_result = json.loads(response.data)
         self.assertTrue(json_result['success'])
+        self.assertEqual(json_result['upload_url'], TEST_UPLOAD_URL)
 
     def test_read_package_not_found(self):
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
@@ -337,6 +394,7 @@ class KPIServerTests(mox.MoxTestBase):
 
     def test_update_package_fail_uac(self):
         self.mox.StubOutWithMock(util, 'check_permissions')
+        self.mox.StubOutWithMock(file_store_service, 'create_file_upload_url')
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
 
         util.check_permissions(
@@ -366,6 +424,7 @@ class KPIServerTests(mox.MoxTestBase):
 
     def test_update_package_success(self):
         self.mox.StubOutWithMock(util, 'check_permissions')
+        self.mox.StubOutWithMock(file_store_service, 'create_file_upload_url')
         test_adapter = self.mox.CreateMock(db_service.DBAdapter)
 
         util.check_permissions(
@@ -376,6 +435,11 @@ class KPIServerTests(mox.MoxTestBase):
         ).AndReturn(True)
 
         test_adapter.put_package(TEST_PACKAGE)
+
+        file_store_service.create_file_upload_url(
+            kpiserver.app,
+            TEST_NAME
+        ).AndReturn(TEST_UPLOAD_URL)
 
         self.mox.ReplayAll()
 
@@ -394,6 +458,7 @@ class KPIServerTests(mox.MoxTestBase):
         self.assertEqual(response.status_code, 200)
         json_result = json.loads(response.data)
         self.assertTrue(json_result['success'])
+        self.assertEqual(json_result['upload_url'], TEST_UPLOAD_URL)
 
     def test_delete_package_fail_uac(self):
         self.mox.StubOutWithMock(util, 'check_permissions')
@@ -447,6 +512,18 @@ class KPIServerTests(mox.MoxTestBase):
             )
         )
 
+        self.assertEqual(response.status_code, 200)
+        json_result = json.loads(response.data)
+        self.assertTrue(json_result['success'])
+
+    def test_status(self):
+        test_adapter = self.mox.CreateMock(db_service.DBAdapter)
+        test_adapter.initialize_indicies()
+        self.mox.ReplayAll()
+
+        kpiserver.db_adapter = test_adapter
+
+        response = self.app.get('/kpi/status.json')
         self.assertEqual(response.status_code, 200)
         json_result = json.loads(response.data)
         self.assertTrue(json_result['success'])
