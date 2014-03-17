@@ -26,6 +26,12 @@ Currently, KPI only supports using Amazon Web Services' S3 for storing and servi
  - ```S3_ACCESS_KEY``` The user key identifying the user account to interact with Amazon Web Services.
 
 
+**Data peristance service**  
+Currently, KPI only supports Mongodb as the data persistance backend:
+
+ - ```MONGO_URI``` URI with user and connection information for the data persistance backend.
+
+
 **Top-level application settings**
 
  - ```DEBUG``` Boolean value indicating if stack traces and detailed debug information should be provided in the instance of an error.
