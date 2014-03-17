@@ -117,6 +117,47 @@ def update_user(username):
     return json.dumps(util.create_success_message('User password updated.'))
 
 
+@app.route('/kpi/user/<username>/reset.json', methods=['POST'])
+def reset_user_password(username):
+    """Resets a user's password for manipulating the package index.
+
+    JSON-document returned:
+
+     - ```success``` Boolean value indicating if successful. Will be true if the
+       user was updated and false otherwise.
+     - ```message``` Details about the result of the operation. Will be provided
+       in both the success and failure cases.
+
+    @param username: The name of the user to modify as read from the url.
+    @type username: str
+    @return: JSON document
+    @rtype: flask.response
+    """
+    if not db_adapter.get_user(username):
+        return json.dumps(util.create_error_message(
+            'Whoops! There was an error on the server.'
+        ))
+
+    new_password = util.generate_password()
+    password_hash = generate_password_hash(new_password)
+    db_adapter.put_user({
+        'username': username,
+        'password_hash': password_hash
+    })
+
+    user_info = db_adapter.get_user(username)
+
+    email_service.send_password_email(
+        app,
+        user_info['email'],
+        username,
+        new_password
+    )
+    return json.dumps(util.create_success_message(
+        'Password reset. Please check your email inbox.'
+    ))
+
+
 @app.route('/kpi/packages.json', methods=['POST'])
 def create_package():
     """Create a new package in the Kipling package index.
