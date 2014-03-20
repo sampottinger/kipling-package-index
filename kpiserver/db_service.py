@@ -167,16 +167,16 @@ class DBAdapter:
         """Put information about a user.
 
         Adds information about a new user to the index's user access controls
-        system or replaces information about the user if a piror record exists
+        system or replaces information about the user if a prior record exists
         by the same username.
 
         @param user_info: Record of the user to update. This will check that
             MINIMUM_REQUIRED_USER_FIELDS are present in this record.
         @type user_info: dict
         """
-        self.ensure(package_info, MINIMUM_REQUIRED_USER_FIELDS)
+        self.ensure(user_info, MINIMUM_REQUIRED_USER_FIELDS)
         username = user_info['username']
-        collection = self.get_package_collection()
+        collection = self.get_user_collection()
         collection.update(
             {'username':username},
             {'$set': user_info},
